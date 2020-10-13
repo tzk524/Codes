@@ -75,6 +75,18 @@ var g_angle02Rate = 15.0;
 var g_angle02max = 45.0;
 var g_angle02min = 0.0;
 
+
+// TES Global Constants
+var g_tes01 = 0;
+var g_tes01_rate = 15;
+var g_tes02 = 0;
+var g_tes02_rate = 0.5;
+var g_tes02_max = 0.3;
+var	g_tes02_min = -0.3;
+
+var g_tes03 = 0;
+var g_tes03_rate = 90;
+
 //------------For mouse click-and-drag: -------------------------------
 var g_isDrag = false;		// mouse-drag: true when user holds down mouse button
 var g_xMclik = 0.0;			// last mouse button-down position (in CVV coords)
@@ -186,7 +198,7 @@ function main() {
 	var tick = function () {
 		//g_angle01 = animate(g_angle01);  // Update the rotation angle
 		animate();
-		drawAll();   // Draw all parts
+		drawAll_TES();   // Draw all parts
 		//    console.log('g_angle01=',g_angle01.toFixed(5)); // put text in console.
 
 		//	Show some always-changing text in the webpage :  
@@ -453,6 +465,70 @@ function initVertexBuffer() {
 	*/
 }
 
+function drawAll_TES() {
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+	// Center Face
+	g_modelMatrix.setTranslate(0.0, 0.5, 0.0);
+	g_modelMatrix.scale(1, 1, -1);
+	g_modelMatrix.rotate(g_tes01, 0, 1, 0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	DrawTES();
+
+	// Left Face
+	pushMatrix(g_modelMatrix);
+		g_modelMatrix.translate(-0.75, g_tes02, 0.0);
+		g_modelMatrix.scale(0.5, 0.5, 0.5);
+  		gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+		DrawTES();
+		
+		// Front Face
+		pushMatrix(g_modelMatrix);
+			g_modelMatrix.translate(0.0, 0.0, 0.5);
+			g_modelMatrix.scale(0.5, 0.5, 0.5);
+			g_modelMatrix.rotate(g_tes03, 0, 0, 1);
+			gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+			DrawTES();
+		g_modelMatrix = popMatrix();
+
+		// Back Face
+		pushMatrix(g_modelMatrix);
+			g_modelMatrix.translate(0.0, 0.0, -0.5);
+			g_modelMatrix.scale(0.5, 0.5, 0.5);
+			g_modelMatrix.rotate(g_tes03, 0, 0, 1);
+			gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+			DrawTES();
+		g_modelMatrix = popMatrix();
+
+	g_modelMatrix = popMatrix();
+	  
+	// Right Face
+	pushMatrix(g_modelMatrix);
+		g_modelMatrix.translate(0.75, g_tes02, 0.0);
+		g_modelMatrix.scale(0.5, 0.5, 0.5);
+  		gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+		DrawTES();
+		  
+		// Front Face
+		pushMatrix(g_modelMatrix);
+			g_modelMatrix.translate(0.0, 0.0, 0.5);
+			g_modelMatrix.scale(0.5, 0.5, 0.5);
+			g_modelMatrix.rotate(g_tes03, 0, 0, 1);
+			gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+			DrawTES();
+		g_modelMatrix = popMatrix();
+
+		// Back Face
+		pushMatrix(g_modelMatrix);
+			g_modelMatrix.translate(0.0, 0.0, -0.5);
+			g_modelMatrix.scale(0.5, 0.5, 0.5);
+			g_modelMatrix.rotate(g_tes03, 0, 0, 1);
+			gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+			DrawTES();
+		g_modelMatrix = popMatrix();
+	g_modelMatrix = popMatrix();
+}
+
 function drawAll() {
 	//==============================================================================
 	// Clear <canvas>  colors AND the depth buffer
@@ -570,20 +646,25 @@ function animate(angle) {
 */
 
 function animate() {
+	animate_TES();
+}
+
+function animate_TES() {
 	var now = Date.now();
 	var elapsed = now - g_last;
 	g_last = now;
 
-	var newAngle = g_angle01 + (g_angle01Rate * elapsed) / 1000.0;
-	if (newAngle > 180.0) newAngle = newAngle - 360.0;
-	if (newAngle < -180.0) newAngle = newAngle + 360.0;
-	g_angle01 = newAngle;
+	g_tes01 = g_tes01 + (g_tes01_rate * elapsed) / 1000.0;
 
+	if (g_tes02 > g_tes02_max && g_tes02_rate > 0) {
+		g_tes02_rate = -g_tes02_rate
+	}
+	if (g_tes02 < g_tes02_min && g_tes02_rate < 0) {
+		g_tes02_rate = -g_tes02_rate
+	}
+	g_tes02 = g_tes02 + (g_tes02_rate * elapsed) / 1000.0;
 
-	if (g_angle02 > g_angle02max && g_angle02Rate > 0) { g_angle02Rate = - g_angle02Rate; }
-	if (g_angle02 < g_angle02min && g_angle02 < 0) { g_angle02Rate = - g_angle02Rate; }
-	g_angle02 = g_angle02 + (g_angle02Rate * elapsed) / 1000.0;
-	//console.log(g_angle02);
+	g_tes03 = g_tes03 + (g_tes03_rate * elapsed) / 1000.0;
 }
 
 
