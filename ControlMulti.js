@@ -83,10 +83,20 @@ var g_tes02 = 0;
 var g_tes02_rate = 0.5;
 var g_tes02_max = 0.3;
 var	g_tes02_min = -0.3;
-
 var g_tes03 = 0;
 var g_tes03_rate = 90;
 
+// Sword Global Constants
+var g_sword01 = 0;
+var g_sword01_rate = 15;
+var g_sword01_max = 45;
+var g_sword01_min = 0;
+var g_sword02 = 0;
+var g_sword02_rate = 720;
+var g_sword03 = 45;
+var g_sword03_rate = 180;
+var g_sword03_max = 90;
+var g_sword03_min = 0;
 //------------For mouse click-and-drag: -------------------------------
 var g_isDrag = false;		// mouse-drag: true when user holds down mouse button
 var g_xMclik = 0.0;			// last mouse button-down position (in CVV coords)
@@ -198,7 +208,7 @@ function main() {
 	var tick = function () {
 		//g_angle01 = animate(g_angle01);  // Update the rotation angle
 		animate();
-		drawAll_TES();   // Draw all parts
+		drawAll();   // Draw all parts
 		//    console.log('g_angle01=',g_angle01.toFixed(5)); // put text in console.
 
 		//	Show some always-changing text in the webpage :  
@@ -466,11 +476,8 @@ function initVertexBuffer() {
 }
 
 function drawAll_TES() {
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
 	// Center Face
 	g_modelMatrix.setTranslate(0.0, 0.5, 0.0);
-	g_modelMatrix.scale(1, 1, -1);
 	g_modelMatrix.rotate(g_tes01, 0, 1, 0);
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
 	DrawTES();
@@ -529,86 +536,45 @@ function drawAll_TES() {
 	g_modelMatrix = popMatrix();
 }
 
-function drawAll() {
-	//==============================================================================
-	// Clear <canvas>  colors AND the depth buffer
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-	// Great question from student:
-	// "?How can I get the screen-clearing color (or any of the many other state
-	//		variables of OpenGL)?  'glGet()' doesn't seem to work..."
-	// ANSWER: from WebGL specification page: 
-	//							https://www.khronos.org/registry/webgl/specs/1.0/
-	//	search for 'glGet()' (ctrl-f) yields:
-	//  OpenGL's 'glGet()' becomes WebGL's 'getParameter()'
-
-	clrColr = new Float32Array(4);
-	clrColr = gl.getParameter(gl.COLOR_CLEAR_VALUE);
-	// console.log("clear value:", clrColr);
-
-	//-------Draw Spinning Tetrahedron
-	g_modelMatrix.setTranslate(-0.4, -0.4, 0.0);  // 'set' means DISCARD old matrix,
-	// (drawing axes centered in CVV), and then make new
-	// drawing axes moved to the lower-left corner of CVV. 
-
-	g_modelMatrix.scale(1, 1, -1);							// convert to left-handed coord sys
-	// to match WebGL display canvas.
+function drawAll_sword() {
+	g_modelMatrix.setTranslate(-0.6, -0.7, 0.0);
+	g_modelMatrix.rotate(-g_sword01, 0, 0, 1);
+	g_modelMatrix.rotate(-10*g_sword01, 1, 1, 0);
 	g_modelMatrix.scale(0.5, 0.5, 0.5);
-	// if you DON'T scale, tetra goes outside the CVV; clipped!
-	g_modelMatrix.rotate(g_angle01, 0, 1, 0);  // Make nSew drawing axes that
-	g_modelMatrix.rotate(g_angle02, 1, 0, 0);
-
-
-	// DRAW TETRA:  Use this matrix to transform & draw 
-	//						the first set of vertices stored in our VBO:
-	// Pass our current matrix to the vertex shaders:
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
-	// Draw triangles: start at vertex 0 and draw 12 vertices
-	DrawTES();
-	// ------------------------------------------------------------------------------------------------------
-
-
-	// NEXT, create different drawing axes, and...
-	g_modelMatrix.setTranslate(0.4, 0.4, 0.0);  // 'set' means DISCARD old matrix,
-	// (drawing axes centered in CVV), and then make new
-	// drawing axes moved to the lower-left corner of CVV.
-	g_modelMatrix.scale(1, 1, -1);							// convert to left-handed coord sys
-	// to match WebGL display canvas.
-	g_modelMatrix.scale(0.3, 0.3, 0.3);				// Make it smaller.
-
-	// Mouse-Dragging for Rotation:
-	//-----------------------------
-	// Attempt 1:  X-axis, then Y-axis rotation:
-	/*  						// First, rotate around x-axis by the amount of -y-axis dragging:
-	  g_modelMatrix.rotate(-g_yMdragTot*120.0, 1, 0, 0); // drag +/-1 to spin -/+120 deg.
-								// Then rotate around y-axis by the amount of x-axis dragging
-		g_modelMatrix.rotate( g_xMdragTot*120.0, 0, 1, 0); // drag +/-1 to spin +/-120 deg.
-					// Acts SENSIBLY if I always drag mouse to turn on Y axis, then X axis.
-					// Acts WEIRDLY if I drag mouse to turn on X axis first, then Y axis.
-					// ? Why is is 'backwards'? Duality again!
-	*/
-	//-----------------------------
-
-	// Attempt 2: perp-axis rotation:
-	// rotate on axis perpendicular to the mouse-drag direction:
-	var dist = Math.sqrt(g_xMdragTot * g_xMdragTot + g_yMdragTot * g_yMdragTot);
-	// why add 0.001? avoids divide-by-zero in next statement
-	// in cases where user didn't drag the mouse.)
-	g_modelMatrix.rotate(dist * 120.0, -g_yMdragTot + 0.0001, g_xMdragTot + 0.0001, 0.0);
-	// Acts weirdly as rotation amounts get far from 0 degrees.
-	// ?why does intuition fail so quickly here?
-
-	//-------------------------------
-	// Attempt 3: Quaternions? What will work better?
-
-	// YOUR CODE HERE
-
-	//-------------------------------
-	// DRAW 2 TRIANGLES:		Use this matrix to transform & draw
-	//						the different set of vertices stored in our VBO:
-	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
-	// Draw only the last 2 triangles: start at vertex 6, draw 6 vertices
 	DrawSword();
+
+	g_modelMatrix.translate(0.6, 0.8, 0.0);
+	g_modelMatrix.scale(0.7, 0.7, 0.7)
+	g_modelMatrix.rotate(90, 0, 0, 1);
+	g_modelMatrix.rotate(g_sword02, 0, 1, 0);
+	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+	DrawSword();
+
+
+	g_modelMatrix.translate(0, -0.6, 0);
+	g_modelMatrix.scale(0.5, 0.5, 0.5);
+	g_modelMatrix.rotate(180, 1, 0, 0);
+	pushMatrix(g_modelMatrix);
+		g_modelMatrix.translate(-0.1, -0.1, 0);
+		g_modelMatrix.rotate(g_sword03, 0, 0, 1);
+		gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+		DrawSword();
+	g_modelMatrix = popMatrix();
+
+	pushMatrix(g_modelMatrix);
+		g_modelMatrix.translate(0.1, -0.1, 0);
+		g_modelMatrix.rotate(-g_sword03, 0, 0, 1);
+		gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
+		DrawSword();
+	g_modelMatrix = popMatrix();
+}
+
+function drawAll() {
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	g_modelMatrix.scale(1, 1, -1);
+	drawAll_TES();
+	drawAll_sword();
 }
 
 function DrawTES() {
@@ -646,27 +612,44 @@ function animate(angle) {
 */
 
 function animate() {
-	animate_TES();
-}
-
-function animate_TES() {
 	var now = Date.now();
 	var elapsed = now - g_last;
 	g_last = now;
-
-	g_tes01 = g_tes01 + (g_tes01_rate * elapsed) / 1000.0;
-
-	if (g_tes02 > g_tes02_max && g_tes02_rate > 0) {
-		g_tes02_rate = -g_tes02_rate
-	}
-	if (g_tes02 < g_tes02_min && g_tes02_rate < 0) {
-		g_tes02_rate = -g_tes02_rate
-	}
-	g_tes02 = g_tes02 + (g_tes02_rate * elapsed) / 1000.0;
-
-	g_tes03 = g_tes03 + (g_tes03_rate * elapsed) / 1000.0;
+	animate_TES(elapsed);
+	animate_sword(elapsed);
 }
 
+function animate_TES(elapsed) {
+	var newAngle = g_tes01 + (g_tes01_rate * elapsed) / 1000.0;
+	if(newAngle > 180.0) newAngle = newAngle - 360.0;
+	if(newAngle <-180.0) newAngle = newAngle + 360.0;
+	g_tes01 = newAngle;
+
+	if (g_tes02 > g_tes02_max && g_tes02_rate > 0) {g_tes02_rate = -g_tes02_rate;}
+	if (g_tes02 < g_tes02_min && g_tes02_rate < 0) {g_tes02_rate = -g_tes02_rate;}
+	g_tes02 = g_tes02 + (g_tes02_rate * elapsed) / 1000.0;
+
+	var newAngle = g_tes03 + (g_tes03_rate * elapsed) / 1000.0;
+	if(newAngle > 180.0) newAngle = newAngle - 360.0;
+	if(newAngle <-180.0) newAngle = newAngle + 360.0;
+	g_tes03 = newAngle;
+}
+
+function animate_sword(elapsed) {
+	if (g_sword01 > g_sword01_max && g_sword01_rate > 0) {g_sword01_rate = -g_sword01_rate;}
+	if (g_sword01 < g_sword01_min && g_sword01_rate < 0) {g_sword01_rate = -g_sword01_rate;}
+	g_sword01 = g_sword01 + (g_sword01_rate * elapsed) / 1000.0;
+
+	var newAngle = g_sword02 + (g_sword02_rate * elapsed) / 1000.0;
+	if(newAngle > 180.0) newAngle = newAngle - 360.0;
+	if(newAngle <-180.0) newAngle = newAngle + 360.0;
+	g_sword02 = newAngle;
+
+	if (g_sword03 > g_sword03_max && g_sword03_rate > 0) {g_sword03_rate = -g_sword03_rate;}
+	if (g_sword03 < g_sword03_min && g_sword03_rate < 0) {g_sword03_rate = -g_sword03_rate;}
+	g_sword03 = g_sword03 + (g_sword03_rate * elapsed) / 1000.0;
+	
+}
 
 //==================HTML Button Callbacks======================
 
