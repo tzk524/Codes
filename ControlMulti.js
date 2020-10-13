@@ -76,6 +76,8 @@ var g_angle02max = 45.0;
 var g_angle02min = 0.0;
 
 
+var speed = 1;
+
 // TES Global Constants
 var g_tes01 = 0;
 var g_tes01_rate = 15;
@@ -218,7 +220,7 @@ function main() {
 		//				on-screen text that reports our current angle value:
 		//		--HINT: don't confuse 'getElementByID() and 'getElementById()
 		document.getElementById('CurAngleDisplay').innerHTML =
-			'g_angle01= ' + g_angle01.toFixed(5);
+			'Current speed: ' + speed.toFixed(1);
 		// Also display our current mouse-dragging state:
 		document.getElementById('Mouse').innerHTML =
 			'Mouse Drag totals (CVV coords):\t' +
@@ -477,8 +479,10 @@ function initVertexBuffer() {
 
 function drawAll_TES() {
 	// Center Face
+	var dist = Math.sqrt(g_xMdragTot*g_xMdragTot + g_yMdragTot*g_yMdragTot);
 	g_modelMatrix.setTranslate(0.0, 0.5, 0.0);
 	g_modelMatrix.rotate(g_tes01, 0, 1, 0);
+	g_modelMatrix.rotate(dist*120.0, -g_yMdragTot+0.0001, g_xMdragTot+0.0001, 0.0);
 	gl.uniformMatrix4fv(g_modelMatLoc, false, g_modelMatrix.elements);
 	DrawTES();
 
@@ -591,25 +595,6 @@ function DrawSword() {
 // Last time that this function was called:  (used for animation timing)
 var g_last = Date.now();
 
-/*
-function animate(angle) {
-//==============================================================================
-  // Calculate the elapsed time
-  var now = Date.now();
-  var elapsed = now - g_last;
-  g_last = now;
-  
-  // Update the current rotation angle (adjusted by the elapsed time)
-  //  limit the angle to move smoothly between +120 and -85 degrees:
-//  if(angle >  120.0 && g_angle01Rate > 0) g_angle01Rate = -g_angle01Rate;
-//  if(angle <  -85.0 && g_angle01Rate < 0) g_angle01Rate = -g_angle01Rate;
-  
-  var newAngle = angle + (g_angle01Rate * elapsed) / 1000.0;
-  if(newAngle > 180.0) newAngle = newAngle - 360.0;
-  if(newAngle <-180.0) newAngle = newAngle + 360.0;
-  return newAngle;
-}
-*/
 
 function animate() {
 	var now = Date.now();
@@ -620,34 +605,34 @@ function animate() {
 }
 
 function animate_TES(elapsed) {
-	var newAngle = g_tes01 + (g_tes01_rate * elapsed) / 1000.0;
+	var newAngle = g_tes01 + (speed *g_tes01_rate * elapsed) / 1000.0;
 	if(newAngle > 180.0) newAngle = newAngle - 360.0;
 	if(newAngle <-180.0) newAngle = newAngle + 360.0;
 	g_tes01 = newAngle;
 
-	if (g_tes02 > g_tes02_max && g_tes02_rate > 0) {g_tes02_rate = -g_tes02_rate;}
-	if (g_tes02 < g_tes02_min && g_tes02_rate < 0) {g_tes02_rate = -g_tes02_rate;}
-	g_tes02 = g_tes02 + (g_tes02_rate * elapsed) / 1000.0;
+	if (g_tes02 > g_tes02_max && speed *g_tes02_rate > 0) {g_tes02_rate = -g_tes02_rate;}
+	if (g_tes02 < g_tes02_min && speed *g_tes02_rate < 0) {g_tes02_rate = -g_tes02_rate;}
+	g_tes02 = g_tes02 + (speed *g_tes02_rate * elapsed) / 1000.0;
 
-	var newAngle = g_tes03 + (g_tes03_rate * elapsed) / 1000.0;
+	var newAngle = g_tes03 + (speed *g_tes03_rate * elapsed) / 1000.0;
 	if(newAngle > 180.0) newAngle = newAngle - 360.0;
 	if(newAngle <-180.0) newAngle = newAngle + 360.0;
 	g_tes03 = newAngle;
 }
 
 function animate_sword(elapsed) {
-	if (g_sword01 > g_sword01_max && g_sword01_rate > 0) {g_sword01_rate = -g_sword01_rate;}
-	if (g_sword01 < g_sword01_min && g_sword01_rate < 0) {g_sword01_rate = -g_sword01_rate;}
-	g_sword01 = g_sword01 + (g_sword01_rate * elapsed) / 1000.0;
+	if (g_sword01 > g_sword01_max && speed *g_sword01_rate > 0) {g_sword01_rate = -g_sword01_rate;}
+	if (g_sword01 < g_sword01_min && speed *g_sword01_rate < 0) {g_sword01_rate = -g_sword01_rate;}
+	g_sword01 = g_sword01 + (speed * g_sword01_rate * elapsed) / 1000.0;
 
-	var newAngle = g_sword02 + (g_sword02_rate * elapsed) / 1000.0;
+	var newAngle = g_sword02 + (speed * g_sword02_rate * elapsed) / 1000.0;
 	if(newAngle > 180.0) newAngle = newAngle - 360.0;
 	if(newAngle <-180.0) newAngle = newAngle + 360.0;
 	g_sword02 = newAngle;
 
-	if (g_sword03 > g_sword03_max && g_sword03_rate > 0) {g_sword03_rate = -g_sword03_rate;}
-	if (g_sword03 < g_sword03_min && g_sword03_rate < 0) {g_sword03_rate = -g_sword03_rate;}
-	g_sword03 = g_sword03 + (g_sword03_rate * elapsed) / 1000.0;
+	if (g_sword03 > g_sword03_max && speed *g_sword03_rate > 0) {g_sword03_rate = -g_sword03_rate;}
+	if (g_sword03 < g_sword03_min && speed *g_sword03_rate < 0) {g_sword03_rate = -g_sword03_rate;}
+	g_sword03 = g_sword03 + (speed * g_sword03_rate * elapsed) / 1000.0;
 	
 }
 
@@ -665,7 +650,7 @@ function angleSubmit() {
 	// the HTML 'div' element with id='editBoxOut':
 	document.getElementById('EditBoxOut').innerHTML = 'You Typed: ' + UsrTxt;
 	console.log('angleSubmit: UsrTxt:', UsrTxt); // print in console, and
-	g_angle01 = parseFloat(UsrTxt);     // convert string to float number 
+	speed = parseFloat(UsrTxt);     // convert string to float number 
 };
 
 function clearDrag() {
@@ -678,22 +663,22 @@ function spinUp() {
 	// Called when user presses the 'Spin >>' button on our webpage.
 	// ?HOW? Look in the HTML file (e.g. ControlMulti.html) to find
 	// the HTML 'button' element with onclick='spinUp()'.
-	g_angle01Rate += 25;
+	speed += 0.1;
 }
 
 function spinDown() {
 	// Called when user presses the 'Spin <<' button
-	g_angle01Rate -= 25;
+	speed -= 0.1;
 }
 
 function runStop() {
 	// Called when user presses the 'Run/Stop' button
-	if (g_angle01Rate * g_angle01Rate > 1) {  // if nonzero rate,
-		myTmp = g_angle01Rate;  // store the current rate,
-		g_angle01Rate = 0;      // and set to zero.
+	if (speed != 0) {  // if nonzero rate,
+		myTmp = speed;  // store the current rate,
+		speed = 0;      // and set to zero.
 	}
 	else {    // but if rate is zero,
-		g_angle01Rate = myTmp;  // use the stored rate.
+		speed = myTmp;  // use the stored rate.
 	}
 }
 
@@ -840,74 +825,21 @@ function myKeyDown(kev) {
 		"\n--kev.altKey:", kev.altKey, "\t--kev.metaKey:", kev.metaKey);
 
 	// and report EVERYTHING on webpage:
-	document.getElementById('KeyDownResult').innerHTML = ''; // clear old results
-	document.getElementById('KeyModResult').innerHTML = '';
-	// key details:
-	document.getElementById('KeyModResult').innerHTML =
-		"   --kev.code:" + kev.code + "      --kev.key:" + kev.key +
-		"<br>--kev.ctrlKey:" + kev.ctrlKey + " --kev.shiftKey:" + kev.shiftKey +
-		"<br>--kev.altKey:" + kev.altKey + "  --kev.metaKey:" + kev.metaKey;
 
 	switch (kev.code) {
 		case "KeyP":
 			console.log("Pause/unPause!\n");                // print on console,
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown() found p/P key. Pause/unPause!';   // print on webpage
-			if (g_isRun == true) {
-				g_isRun = false;    // STOP animation
-			}
-			else {
-				g_isRun = true;     // RESTART animation
-				tick();
-			}
-			break;
-		//------------------WASD navigation-----------------
-		case "KeyA":
-			console.log("a/A key: Strafe LEFT!\n");
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown() found a/A key. Strafe LEFT!';
-			break;
-		case "KeyD":
-			console.log("d/D key: Strafe RIGHT!\n");
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown() found d/D key. Strafe RIGHT!';
-			break;
-		case "KeyS":
-			console.log("s/S key: Move BACK!\n");
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown() found s/Sa key. Move BACK.';
-			break;
-		case "KeyW":
-			console.log("w/W key: Move FWD!\n");
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown() found w/W key. Move FWD!';
+			runStop();
 			break;
 		//----------------Arrow keys------------------------
 		case "ArrowLeft":
 			console.log(' left-arrow.');
 			// and print on webpage in the <div> element with id='Result':
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown(): Left Arrow=' + kev.keyCode;
+			spinDown();
 			break;
 		case "ArrowRight":
 			console.log('right-arrow.');
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown():Right Arrow:keyCode=' + kev.keyCode;
-			break;
-		case "ArrowUp":
-			console.log('   up-arrow.');
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown():   Up Arrow:keyCode=' + kev.keyCode;
-			break;
-		case "ArrowDown":
-			console.log(' down-arrow.');
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown(): Down Arrow:keyCode=' + kev.keyCode;
-			break;
-		default:
-			console.log("UNUSED!");
-			document.getElementById('KeyDownResult').innerHTML =
-				'myKeyDown(): UNUSED!';
+			spinUp();
 			break;
 	}
 }

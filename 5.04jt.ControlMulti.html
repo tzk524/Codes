@@ -14,10 +14,11 @@
 		 (where? look inside main(), inside its 'tick()' function, where we
 		 display the 'current angle' value.
 	-->
+	The speed controls how fast the objects move. (If you enter a negative speed, then the objects will move backwardly.)
 	<div id= CurAngleDisplay></div> 
 	<!-- Next, make a simple block of text 
 	-->
-	New Current Angle (-180 < x < +180 deg): 
+	New Speed: 
 	<!-- Next, make an HTML 'input' box element, a text-box 10 chars wide where users
 		can type in text.  Give it an ID name so that our JavaScript program
 		(e.g. ControlMulti.js, loaded near the end of this file) can access this
@@ -30,11 +31,14 @@
     	</t> (right-click-->'Inspect' or 'Inspect element'-->'Console' tab) <br>
 
 <hr> <!-- Draw a horizontal-line separator------------->
-	Try keyboard & mouse click/drag inside the canvas, and:
+	Try keyboard & mouse click/drag inside the canvas, and:	
 		<br>
-		<span id='KeyDownResult'  > KeyDown:    </span> <!-- myKeyDown() modifies this span object -->		
+		Press P to Run/Stop. 
 		<br>
-		<span id='KeyModResult'   > KeyMod :<br><br>   </span> <!-- myKeyDown() modifies this span object -->
+		Press Left Arrow to Speed Down. 
+		<br>
+		Press Right Arrow to Speed Up.
+		<br>
 		<br>
 		<span id='MouseAtResult'  >   Mouse At: </span> <!-- myMouseMove() modifies this span object -->
 		<br>
@@ -46,15 +50,15 @@
 		  Note we use these totals to rotate the triangle at upper left.
 	-->
 		<div id='Mouse'> Mouse Drag totals (CVV coords) </div>
-			<button type="button" onClick='clearDrag()'>Clear</button>
+			<button type="button" onClick='clearDrag()'>Clear Mouse Drag</button>
 	<p>
 		<!--BUTTONS: commands below create HTML push-buttons with labels
 			Spin <<, runStop, and Spin >>.  
 		When users click the button, HTML calls JavaScript functions
 			"spinDown()", "runStop()" and "spinUp()"   -->
-      <button type="button" onclick="spinDown()">Spin << </button>
+      <button type="button" onclick="spinDown()">Speed Down << </button>
 	  <button type="button" onclick="runStop()">Run/Stop</button>
-      <button type="button" onclick="spinUp()">Spin >> </button>
+      <button type="button" onclick="spinUp()">Speed Up >> </button>
     </p>
 	<!--	Load in the JavaScript libraries supplied by our textbook 
 			(Matsuda et al., 2013 WebGL Programming Guide) that help us
